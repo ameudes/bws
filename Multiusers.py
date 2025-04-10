@@ -16,7 +16,8 @@ from google.oauth2 import service_account
 #Principale modifs :  Génération aléatoire constante des séquences d'option pour chaque participants, choix de la séquence à appliquer et mise à jour du json dès le début, Mise à jour du json à la fin après soumission
 #Ajout des éléments dans un session_state pour éviter un rerun à chaque selection du st.radio qui modifie tout.
 #Ajout de l'envoi vers google sheet
-#
+#Prise en compte de st.secret
+#Ajout du requirement avec pipreqs
 
 
 #Quelques fonctions clés
