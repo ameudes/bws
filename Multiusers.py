@@ -101,12 +101,14 @@ else :
         st.title("Merci de votre participation !")
         
         with st.spinner("Envoi des données... Veuillez patienter quelques secondes"):
-            time.sleep(2)  
+            time.sleep(3)  
         st.success("Données envoyées!")
         
         #Send the data to Google sheet
         scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-        credentials = Credentials.from_service_account_file('credentials.json', scopes=scopes)
+        #credentials = Credentials.from_service_account_file('credentials.json', scopes=scopes) #Méthode brute abandonnée pour utiliser st.secrets afin de préserver les credentials
+        creds_info = json.loads(st.secrets["credentials"])
+        credentials = service_account.Credentials.from_service_account_info(creds_info, scopes=scopes)
         gc = gspread.authorize(credentials)
         gauth = GoogleAuth()
         drive = GoogleDrive(gauth)
