@@ -10,6 +10,7 @@ from gspread_dataframe import set_with_dataframe
 from google.oauth2.service_account import Credentials
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+from google.oauth2 import service_account
 
 
 #Principale modifs :  Génération aléatoire constante des séquences d'option pour chaque participants, choix de la séquence à appliquer et mise à jour du json dès le début, Mise à jour du json à la fin après soumission
