@@ -100,7 +100,7 @@ def inserer (df): # Fonction pour envoyer les données vers Neon
             )
             session.add(record)
             session.commit()
-        st.success("✅ Données insérées avec succès.")
+        st.success("✅ Données enregistrées succès.")
     except Exception as e:
         session.rollback()
         st.error(f"Erreur lors de l'insertion : {e}")
@@ -198,7 +198,7 @@ else :
         
         with st.spinner("Envoi des données... Veuillez patienter quelques secondes"):
             time.sleep(3)  
-        st.success("Données envoyées!")
+        st.write("Enregistrement en cours ... Veuillez patienter quelques secondes!")
         
         #Send the data to Google sheet
         df = pd.DataFrame(st.session_state.responses)
