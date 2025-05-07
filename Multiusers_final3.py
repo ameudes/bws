@@ -100,7 +100,7 @@ def inserer (df): # Fonction pour envoyer les données vers Neon
             )
             session.add(record)
             session.commit()
-        st.success("✅ Données enregistrées succès.")
+        st.success("✅ Données enregistrées avec succès.")
     except Exception as e:
         session.rollback()
         st.error(f"Erreur lors de l'insertion : {e}")
