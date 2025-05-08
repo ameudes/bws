@@ -97,7 +97,7 @@ def inserer (df): # Fonction pour envoyer les données vers Neon
                 DateTime=row["DateTime"]
             )
             session.add(record)
-            session.commit()
+        session.commit()
         st.success("✅ Données enregistrées avec succès.")
     except Exception as e:
         session.rollback()
