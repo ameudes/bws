@@ -29,29 +29,10 @@ from datetime import datetime
 #Modification du code de génération et mise à jour pour le faire après remplissage du nom afin d'éviter des incrémentations excessive de l'index
 # Switch de la connexion Google sheet a Neon 
 # Rajout du date pour suivre les remplissages à la va vite
+# Suvi et mise à jour des index de question depuis Neon et pas Json
 
 
 #Quelques fonctions clés
-def read_subsetgroup(key): # Fonction pour lire les indices depuis le fichier JSON
-    if os.path.exists("subsetgroup.json"):
-        with open("subsetgroup.json", "r") as f:
-            data = json.load(f)
-            return data.get(key)
-
-def update_subsetgroup(indice): #Fonction pour rajouter le prochain indice à utiliser (il s'agit du c_ind utilisé plus bas, on rajoute dans index )
-    with open("subsetgroup.json","r") as f:
-        data = json.load(f)
-        data["index"].append(indice)    
-    with open("subsetgroup.json", "w") as o:
-        json.dump(data, o)
-                
-def write_subsetgroup(indice): # Fonction pour écrire les indices terminés dans le fichier JSON
-    with open("subsetgroup.json","r") as f:
-        data = json.load(f)
-        data["end"].append(indice)
-      
-    with open("subsetgroup.json", "w") as o:
-        json.dump(data, o)
 
 def inserer (df): # Fonction pour envoyer les données vers Neon
     
@@ -107,6 +88,85 @@ def inserer (df): # Fonction pour envoyer les données vers Neon
 
 
 
+def recup_index(): #Fonction pour récupérer le dernier index depuis la table respondant de Neon
+    
+    #Connection to the database
+    from sqlalchemy import URL, create_engine
+    connection_string = URL.create(
+    'postgresql',
+    username='prototype_owner',
+    password='nT1VQRwHe5IN',
+    host='ep-jolly-dew-a2pnc8th.eu-central-1.aws.neon.tech',
+    database='prototype',
+    #connect_args={'sslmode':'require'}
+    )
+    engine = create_engine(connection_string, connect_args={'sslmode':'require'}, echo=True) #echo to show the actual sql code used behind
+    
+    
+    from sqlalchemy.orm import sessionmaker
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    from sqlalchemy import Column, String,Table, Column, Integer, Float, MetaData,update
+    from sqlalchemy.orm import declarative_base, relationship
+
+
+    Base = declarative_base()
+    class Test(Base):
+        __tablename__ = 'REPONDANT'
+        id = Column(Integer, primary_key=True)
+        name=Column(String(100))
+        
+    # Récupération du dernier ID de la table REPONDANT
+    last_entry = session.query(Test).order_by(Test.id.desc()).first()
+    if last_entry:
+        last_id = last_entry.id
+    else:
+        last_id = 0  # Si la table est vide
+        
+    return last_id
+
+
+def write_name(nom): #Fonction pour écrire le nom du répondant dans la table répondant
+    
+    #Connection to the database
+    from sqlalchemy import URL, create_engine
+    connection_string = URL.create(
+    'postgresql',
+    username='prototype_owner',
+    password='nT1VQRwHe5IN',
+    host='ep-jolly-dew-a2pnc8th.eu-central-1.aws.neon.tech',
+    database='prototype',
+    #connect_args={'sslmode':'require'}
+    )
+    engine = create_engine(connection_string, connect_args={'sslmode':'require'}, echo=True) #echo to show the actual sql code used behind
+    
+    
+    from sqlalchemy.orm import sessionmaker
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    from sqlalchemy import Column, String,Table, Column, Integer, Float, MetaData,update
+    from sqlalchemy.orm import declarative_base, relationship
+
+
+    Base = declarative_base()
+    class Test(Base):
+        __tablename__ = 'REPONDANT'
+        id = Column(Integer, primary_key=True)
+        name=Column(String(100))
+        
+    data= Test(name=nom)
+    session.add_all([data])
+    session.commit()
+
+
+
+
+
+
+
+
 
 #Multipage survey begin
 # Initialize session state variables if they don't exist
@@ -147,12 +207,12 @@ if not st.session_state.start:
             #Stockage de la liste de question spécifique au user dans un session_state
             if 'list_user' not in st.session_state:
                 
-                # Recuperation de l'indice identifiant l'odre du répondant actuel (Le dernier dans la liste)
-                c_ind = read_subsetgroup("index") [-1]
+                # Recuperation de l'indice identifiant l'odre du répondant actuel 
+                c_ind = recup_index()
                 #En fonction de l'indice précédent, définition du set d'option à lui afficher, on prends le modulo pour assurer une rotation si on passe le cap des 55
                 selected = c_ind % 55  
-                #Mise à jour de l'indice pour le prochain répondant 
-                update_subsetgroup(c_ind+1)  
+                #Mise à jour de l'indice pour le prochain répondant (On rajoute juste le nom et on laisse l'incrémentation automatoique s'occuper de l'indice qui est l'id de la table REPONDANT) 
+                write_name(name) 
                     
                 #Lecture du fichier contenant les listes des séquence d'options (lists.json)
                 with open("lists.json", "r") as f:
@@ -201,7 +261,7 @@ else :
         #Send the data to Google sheet
         df = pd.DataFrame(st.session_state.responses)
         inserer(df)    
-        #write_subsetgroup(st.session_state.selected) # Add the selected indice to end in subsetgroup.json
+        
         
         st.write("Vos réponses ont été enregistrées")
 
