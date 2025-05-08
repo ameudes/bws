@@ -55,8 +55,6 @@ def write_subsetgroup(indice): # Fonction pour écrire les indices terminés dan
 
 def inserer (df): # Fonction pour envoyer les données vers Neon
     
-    
-    
     #Mise en place de la connexion à la base de donnée
     host=st.secrets.db_credentials.host
     username=st.secrets.db_credentials.username
