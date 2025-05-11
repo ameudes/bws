@@ -88,10 +88,10 @@ def inserer (df): # Fonction pour envoyer les données vers Neon
 
 
 
-def recup_index(): #Fonction pour récupérer le dernier index depuis la table respondant de Neon
+def recup_index(): #Fonction pour récupérer l'index des questions à afficher au répondant
     
     #Connection to the database
-    from sqlalchemy import URL, create_engine
+    from sqlalchemy import URL, create_engine, distinct
     connection_string = URL.create(
     'postgresql',
     username='prototype_owner',
@@ -109,22 +109,33 @@ def recup_index(): #Fonction pour récupérer le dernier index depuis la table r
     
     from sqlalchemy import Column, String,Table, Column, Integer, Float, MetaData,update
     from sqlalchemy.orm import declarative_base, relationship
-
-
     Base = declarative_base()
+
+    #Nouveau code pour les index
+
     class Test(Base):
-        __tablename__ = 'REPONDANT'
+        __tablename__ = 'bws'
+
         id = Column(Integer, primary_key=True)
         name=Column(String(100))
-        
-    # Récupération du dernier ID de la table REPONDANT
-    last_entry = session.query(Test).order_by(Test.id.desc()).first()
-    if last_entry:
-        last_id = last_entry.id
+        participant =Column(Integer)
+        set = Column(Integer)
+        most_imp=Column(String(100))
+        least_imp=Column(String(100))
+        DateTime=Column(String(60))    
+    
+    #Nouveau code pour les index: Récupérer directement l'index non encore utilisé
+    participants_lis = session.query(distinct(Test.participant)).order_by(Test.participant.asc()).all()
+    participants_list = [p[0] for p in participants_lis]
+    participants_set=set(participants_list)
+    
+    list_initiale=set(range(55))
+    list_initiale.difference_update(participants_set)
+    
+    if list_initiale:
+        return list(list_initiale)[0]
     else:
-        last_id = 0  # Si la table est vide
-        
-    return last_id
+        return 0
 
 
 def write_name(nom): #Fonction pour écrire le nom du répondant dans la table répondant
