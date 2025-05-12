@@ -419,7 +419,7 @@ else :
         # Button to submit the current response and move to the next list
         if st.button("Suivant", key=f"next"):
             if most_choice==least_choice:
-                st.error('Le moins important et le plus important doivent êtres différents', icon="🚨") 
+                st.error('Le moins important et le plus important doivent être différents', icon="🚨") 
             else:    
             # Save the current response (list number and selected option)
                 
